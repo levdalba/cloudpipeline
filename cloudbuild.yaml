@@ -1,30 +1,16 @@
 steps:
-    # Build the container image
     - name: 'gcr.io/cloud-builders/docker'
-      args: ['build', '-t', 'gcr.io/$PROJECT_ID/cloudrun-etl:$COMMIT_SHA', '.']
-
-    # Push the container image to Container Registry
+      args: ['build', '-t', 'gcr.io/$PROJECT_ID/cloudrun-etl:latest', '.']
     - name: 'gcr.io/cloud-builders/docker'
-      args: ['push', 'gcr.io/$PROJECT_ID/cloudrun-etl:$COMMIT_SHA']
-
-    # Deploy to Cloud Run with service account and env vars
+      args: ['push', 'gcr.io/$PROJECT_ID/cloudrun-etl:latest']
     - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-      entrypoint: gcloud
       args:
           - 'run'
           - 'deploy'
           - 'cloudrun-etl'
-          - '--image'
-          - 'gcr.io/$PROJECT_ID/cloudrun-etl:$COMMIT_SHA'
-          - '--region'
-          - 'us-central1'
-          - '--platform'
-          - 'managed'
+          - '--image=gcr.io/$PROJECT_ID/cloudrun-etl:latest'
+          - '--region=asia-southeast1'
+          - '--platform=managed'
           - '--allow-unauthenticated'
-          - '--service-account'
-          - 'etl-service-account@$PROJECT_ID.iam.gserviceaccount.com'
-          - '--set-env-vars'
-          - 'GCS_BUCKET_NAME=gcstestbuckethb,BQ_DATASET_ID=coursera_data,BQ_TABLE_ID=courses'
-
-images:
-    - 'gcr.io/$PROJECT_ID/cloudrun-etl:$COMMIT_SHA'
+      entrypoint: 'gcloud'
+timeout: '1200s'
